@@ -1,0 +1,10 @@
+body {
+	background-color: #627;
+	font-family: Consolas,  Verdana, monospace;
+	color: #ccc;
+}
+
+canvas {
+	background-color: #738;
+	width: 100%;
+}
