@@ -63,10 +63,8 @@ $(window).ready(function() {
 	var s = canvas.addShape(20, 150);
 	s.velocity.y = 0;
 	s.velocity.x = 5;
-	s.acceleration.y=0;
 	s = canvas.addShape(400, 200);
 	s.velocity.y = 0;
 	s.velocity.x = -5;
-	s.acceleration.y=0;
 	canvas.loop();
 });
