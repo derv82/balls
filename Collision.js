@@ -31,37 +31,63 @@ Collision.prototype = {
 
 	// Checks for a resolves collisions between two shapes
 	shape: function(shape1, shape2) {
-		// Distance between shapes
 
+		// Line between origins of shape1 and shape2
 		var deltav = new Vector(shape2.position.x - shape1.position.x,
 		                        shape2.position.y - shape1.position.y);
-		var distance = deltav.length();
+
+		var radiiSum = shape1.radius + shape2.radius;
 
 		// If distance is less than sum of radii, no collision
-		if (distance > shape1.radius + shape2.radius) {
+		if (deltav.length() > radiiSum) {
 			// No collision
 			 return;
 		}
 
-		var norm = deltav.normalize();
+		///////////////////////////////////////
 		// Move 2nd shape so it is not colliding
-		var delta2 = norm.multiply(shape1.radius + shape2.radius);
+		var delta2 = deltav.normalize()         // Convert line between shapes to have length 1
+		                   .multiply(radiiSum); // Extend to the line to the distance between shapes
 		shape2.position = shape1.position.add(delta2);
 
-		var mv1 = ((shape1.radius - shape2.radius) / (shape1.radius + shape2.radius)) * shape1.velocity.length() + 
-			        ((2 * shape2.radius)             / (shape1.radius + shape2.radius)) * shape2.velocity.length();
+		//////////////////////////////////////
+		// Calculate magnitude of the final velocities using Conservation of Momentum
+		//
+		//           (mass1 - mass2)                  (2 * mass2)
+		// v2Final = --------------- * v1Before  +  --------------- * v2Before
+		//           (mass1 + mass2)                (mass1 + mass2)
+		//
+		var magVel1 = ((shape1.radius - shape2.radius) / radiiSum) * shape1.velocity.length() + 
+			            ((2 * shape2.radius)             / radiiSum) * shape2.velocity.length();
 
-		var mv2 = ((shape2.radius - shape1.radius) / (shape2.radius + shape1.radius)) * shape1.velocity.length() + 
-			        ((2 * shape1.radius)             / (shape2.radius + shape1.radius)) * shape1.velocity.length();
+		var magVel2 = ((shape2.radius - shape1.radius) / radiiSum) * shape1.velocity.length() + 
+			            ((2 * shape1.radius)             / radiiSum) * shape1.velocity.length();
 
-		var v1 = deltav.multiply(-1).normalize().multiply(shape2.velocity.subtract(shape1.velocity).length());
-		var v2 = deltav.normalize().multiply(shape1.velocity.subtract(shape2.velocity).length());
 
-		v1 = shape1.velocity.add(v1).normalize().multiply(mv1);
-		v2 = shape2.velocity.add(v2).normalize().multiply(mv2);
+		//////////////////////////////////////
+		// Calculate direction of new velocities
+		var dirVel1 = deltav.multiply(-1) // Invert line (now points from shape2 to shape1)
+		                    .normalize()  // Convert to length 1
+		                    .multiply(    // Multiply by difference of velocities
+		                        shape2.velocity.subtract(shape1.velocity)
+		                                       .length()
+		                    );
 
-		shape1.velocity = v1;
-		shape2.velocity = v2;
+		var dirVel2 = deltav.normalize() // Convert line between shapes to 1
+		                    .multiply(   // Multiply by difference of velocities
+		                        shape1.velocity.subtract(shape2.velocity)
+		                                       .length()
+		                    );
+
+		shape1.velocity = shape1.velocity.add(dirVel1)       // Add direction of velocity to existing
+		                                                     // velocity to get new direction
+		                                 .normalize()        // Convert to length 1
+		                                 .multiply(magVel1); // Extend to the length of the new velocity
+
+		shape2.velocity = shape2.velocity.add(dirVel2)       // Add direction of velocity to existing
+		                                                     // velocity to get new direction
+		                                 .normalize()        // Convert to length 1
+		                                 .multiply(magVel2); // Extend to the length of the new velocity
 
 		this.audio.play('billiard');
 	},
