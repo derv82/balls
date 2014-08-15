@@ -1,31 +1,34 @@
-function Background() {
-	this.red   = 77;
-	this.green = 33;
-	this.blue  = 88;
-	this.alpha = 0.1;
+// Canvas background functions
+function Background(r, g, b, a) {
+	this.color = new Color(r || this.BASE_COLOR.red,
+	                       g || this.BASE_COLOR.green,
+	                       b || this.BASE_COLOR.blue,
+	                       a || this.BASE_COLOR.alpha);
 }
 
 Background.prototype = {
+	// Default background color
+	BASE_COLOR: new Color(77, 33, 88, 0.1),
+
 	// Change background color temporarily
 	flash: function(r,g,b) {
-		this.red = r; this.green = g; this.blue = b;
-		this.alpha = 1.0;
+		this.color = new Color(r, g, b, 1.0);
 	},
 
 	tick: function() {
 		// Fade from whatever color it is to the default color
-		rd = this.red - 77;
-		rg = this.green - 33;
-		rb = this.blue - 88;
-		ra = this.alpha - 0.1;
-		this.red   -= parseInt(rd / 10);
-		this.green -= parseInt(rg / 10);
-		this.blue  -= parseInt(rb / 10);
-		this.alpha -= (ra / 10);
+		rd = this.color.red   - this.BASE_COLOR.red;
+		rg = this.color.green - this.BASE_COLOR.green;
+		rb = this.color.blue  - this.BASE_COLOR.blue;
+		ra = this.color.alpha - this.BASE_COLOR.alpha;
+		this.color.red   -= parseInt(rd / 10);
+		this.color.green -= parseInt(rg / 10);
+		this.color.blue  -= parseInt(rb / 10);
+		this.color.alpha -= (ra / 10);
 	},
 
 	draw: function(canvas, context) {
-		context.fillStyle = 'rgba(' + this.red + ',' + this.green + ',' + this.blue + ',' + this.alpha + ')';
+		context.fillStyle = this.color.toString();
 		context.fillRect(0, 0, canvas.width, canvas.height);
 	}
 

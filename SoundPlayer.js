@@ -3,7 +3,7 @@ function SoundPlayer() {
 	this.AUDIO_MAX_CHANNELS = 10;
 	this.audioChannels = new Array();
 
-	for (i = 0; i < this.AUDIO_MAX_CHANNELS; i++) {
+	for (var i = 0; i < this.AUDIO_MAX_CHANNELS; i++) {
 		this.audioChannels[i] = new Array();
 		this.audioChannels[i]['channel'] = new Audio();
 		this.audioChannels[i]['finished'] = -1;
@@ -15,7 +15,7 @@ SoundPlayer.prototype = {
 	play: function(audioID) {
 		var now;
 
-		for (i = 0; i < this.audioChannels.length; i++) {
+		for (var i = 0; i < this.audioChannels.length; i++) {
 			now = new Date().getTime();
 			if (this.audioChannels[i]['finished'] < now) {
 				this.audioChannels[i]['finished'] = now + document.getElementById(audioID).duration * 1000;

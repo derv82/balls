@@ -1,4 +1,3 @@
-
 function Shape(x,y) {
 	this.radius = 50; //(parseInt(Math.random() * 5) + 1) * 10,
 	this.mass = this.radius;

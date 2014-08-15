@@ -1,3 +1,5 @@
+// Functions on a set of shapes
+
 function Shapes(audio, context) {
 	this.shapes = new Array();
 	this.collision = new Collision(audio,context);
@@ -17,8 +19,6 @@ Shapes.prototype = {
 	tick: function(canvas) {
 		for (var i = 0; i < this.shapes.length; i++) {
 			this.shapes[i].tick(canvas);
-		}
-		for (var i = 0; i < this.shapes.length; i++) {
 			this.collision.wall(this.shapes[i], canvas);
 
 			for (var j = i + 1; j < this.shapes.length; j++) {

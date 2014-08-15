@@ -1,3 +1,4 @@
+// Functions for detecting and resolving collisions
 
 function Collision(audio, context) {
 	this.audio   = audio;

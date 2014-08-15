@@ -1,14 +1,8 @@
 function Color(r,g,b,a) {
-	if (r === undefined) r = parseInt(Math.random() * 255);
-	if (g === undefined) g = parseInt(Math.random() * 255);
-	if (b === undefined) b = parseInt(Math.random() * 255);
-	if (a === undefined) a = 1.0;
-
-	// COLORS
-	this.red   = r;
-	this.green = g;
-	this.blue  = b;
-	this.alpha = a;
+	this.red   = r || parseInt(Math.random() * 255);
+	this.green = g || parseInt(Math.random() * 255);
+	this.blue  = b || parseInt(Math.random() * 255);
+	this.alpha = a || 1.0;
 
 	// COLOR VELOCITY
 	this.dred   = parseInt(Math.random() * 20) - 10;
