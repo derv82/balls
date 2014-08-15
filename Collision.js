@@ -32,63 +32,85 @@ Collision.prototype = {
 	// Checks for a resolves collisions between two shapes
 	shape: function(shape1, shape2) {
 
-		// Line between origins of shape1 and shape2
+		////////////////////////////////////////////////
+		// Line between the centers of shape1 and shape2
 		var deltav = new Vector(shape2.position.x - shape1.position.x,
 		                        shape2.position.y - shape1.position.y);
 
 		var radiiSum = shape1.radius + shape2.radius;
-
 		// If distance is less than sum of radii, no collision
 		if (deltav.length() > radiiSum) {
 			// No collision
 			 return;
 		}
 
-		///////////////////////////////////////
+		/////////////////////////////////////////////////
 		// Move 2nd shape so it is not colliding
 		var delta2 = deltav.normalize()         // Convert line between shapes to have length 1
 		                   .multiply(radiiSum); // Extend to the line to the distance between shapes
-		shape2.position = shape1.position.add(delta2);
+		shape2.position = shape1.position.add(delta2); // Move 2nd shape
 
-		//////////////////////////////////////
-		// Calculate magnitude of the final velocities using Conservation of Momentum
-		//
-		//           (mass1 - mass2)                  (2 * mass2)
-		// v2Final = --------------- * v1Before  +  --------------- * v2Before
-		//           (mass1 + mass2)                (mass1 + mass2)
-		//
-		var magVel1 = ((shape1.radius - shape2.radius) / radiiSum) * shape1.velocity.length() + 
-			            ((2 * shape2.radius)             / radiiSum) * shape2.velocity.length();
+		/////////////////////////////////////////////////
+		// The rest is *heavily* borrowed from:
+		//   http://www.vobarian.com/collisions/2dcollisions2.pdf
+		// This is a great guide for resolving collisions with vectors and no trigonometry.
+		// (by projecting velocity along vectors normal/tangent to the collision).
 
-		var magVel2 = ((shape2.radius - shape1.radius) / radiiSum) * shape1.velocity.length() + 
-			            ((2 * shape1.radius)             / radiiSum) * shape1.velocity.length();
+		var massSum = shape1.mass + shape2.mass;
 
+		/////////////////////////////////////
+		// Calculate the Normal & Tangent vectors
+		var unitNormal = deltav.normalize();   // Direction: From shape1 to shape2
+		var unitTangent = new Vector(-unitNormal.y, unitNormal.x); // Direction: Perpendicular to the Normal
+		// *Unit means length is 1
 
-		//////////////////////////////////////
-		// Calculate direction of new velocities
-		var dirVel1 = deltav.multiply(-1) // Invert line (now points from shape2 to shape1)
-		                    .normalize()  // Convert to length 1
-		                    .multiply(    // Multiply by difference of velocities
-		                        shape2.velocity.subtract(shape1.velocity)
-		                                       .length()
-		                    );
+		///////////////////////////////////////////////////////
+		// Calculate the pre-collision velocity of shapes along
+		// both the normal and tangent unit vectors.
+		// This is done by "projecting" each velocity onto the normal/tangent vectors
+		var v1NormalBefore  = unitNormal.dot(shape1.velocity);
+		var v2NormalBefore  = unitNormal.dot(shape2.velocity);
+		var v1TangentBefore = unitTangent.dot(shape1.velocity);
+		var v2TangentBefore = unitTangent.dot(shape2.velocity);
 
-		var dirVel2 = deltav.normalize() // Convert line between shapes to 1
-		                    .multiply(   // Multiply by difference of velocities
-		                        shape1.velocity.subtract(shape2.velocity)
-		                                       .length()
-		                    );
+		// Calculate post-collision velocity along the tangent vector
+		// Note: This does not change as it's tangential to the collision
+		var v1TangentAfter = v1TangentBefore;
+		var v2TangentAfter = v2TangentBefore;
 
-		shape1.velocity = shape1.velocity.add(dirVel1)       // Add direction of velocity to existing
-		                                                     // velocity to get new direction
-		                                 .normalize()        // Convert to length 1
-		                                 .multiply(magVel1); // Extend to the length of the new velocity
+		// Calculate the magnitude of the post-collision velocity along the normal vector
+		///////////////////////////////////////////////////////////////////////////////
+		//                                                                           //
+		//                       v1Before * (mass1 - mass2) + 2 * mass2 * v2Before   //
+		// v1AlongNormalAfter =  -------------------------------------------------   //
+		//                                     mass1 + mass2                         //
+		//                                                                           //
+		///////////////////////////////////////////////////////////////////////////////
+		// This gives the magnitude of the post-collision velocity along the normal vector
+		var v1NormalAfter = (
+		                      v1NormalBefore * (shape1.mass - shape2.mass)
+		                      +            2 * shape2.mass * v2NormalBefore
+		                    )
+		                    / massSum;
+		var v2NormalAfter = (
+		                      v2NormalBefore * (shape2.mass - shape1.mass)
+		                      +            2 * shape1.mass * v1NormalBefore
+		                    )
+		                    / massSum;
 
-		shape2.velocity = shape2.velocity.add(dirVel2)       // Add direction of velocity to existing
-		                                                     // velocity to get new direction
-		                                 .normalize()        // Convert to length 1
-		                                 .multiply(magVel2); // Extend to the length of the new velocity
+		// Create the post-collision velocity vectors (extensions of the normal/tangent)
+		var v1NormalVectorAfter  = unitNormal.multiply(v1NormalAfter);
+		var v2NormalVectorAfter  = unitNormal.multiply(v2NormalAfter);
+		var v1TangentVectorAfter = unitTangent.multiply(v1TangentAfter);
+		var v2TangentVectorAfter = unitTangent.multiply(v2TangentAfter);
 
+		// Add these vectors together to get the final velocities
+		shape1.velocity = v1NormalVectorAfter.add(v1TangentVectorAfter);
+		shape2.velocity = v2NormalVectorAfter.add(v2TangentVectorAfter);
+
+		// Play a sound.
 		this.audio.play('billiard');
 	},
+
+
 }

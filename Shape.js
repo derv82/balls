@@ -1,6 +1,7 @@
 
 function Shape(x,y) {
 	this.radius = 50; //(parseInt(Math.random() * 5) + 1) * 10,
+	this.mass = this.radius;
 
 	this.position = new Vector(x, y);
 
@@ -10,7 +11,7 @@ function Shape(x,y) {
 	this.velocity = new Vector(dx,dy);
 
 	// Downward acceleration
-	this.acceleration = new Vector(0, 0.1);
+	this.acceleration = new Vector(0, 1.0);
 
 	this.color = new Color();
 }
