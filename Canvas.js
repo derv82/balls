@@ -39,7 +39,7 @@ Canvas.prototype = {
 	addShape: function(x,y) {
 		if (x === undefined) x = Math.random() * this.element.width;
 		if (y === undefined) y = Math.random() * this.element.height;
-		this.shapes.addShape(x,y);
+		return this.shapes.addShape(x,y);
 	},
 
 	tick: function() {
@@ -54,13 +54,19 @@ Canvas.prototype = {
 		var thisCanvas = this;
 		setInterval(function() {
 			thisCanvas.tick();
-		}, 100);
+		}, 50);
 	},
 }
 
 $(window).ready(function() {
 	var canvas = new Canvas("canvas");
-	canvas.addShape();
-	canvas.addShape();
+	var s = canvas.addShape(20, 150);
+	s.velocity.y = 0;
+	s.velocity.x = 5;
+	s.acceleration.y=0;
+	s = canvas.addShape(400, 200);
+	s.velocity.y = 0;
+	s.velocity.x = -5;
+	s.acceleration.y=0;
 	canvas.loop();
 });

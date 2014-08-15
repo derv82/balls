@@ -17,18 +17,30 @@ Vector.prototype = {
 
 	normalize: function() {
 		var s = 1 / this.length();
-		this.x *= s;
-		this.y *= s;
-		return this;
+		return new Vector(this.x * s, this.y * s);
 	},
 
 	multiply: function(s) {
 		return new Vector(this.x * s, this.y * s);
 	},
 
-	tx: function(v) {
+	// Adds vector
+	translate: function(v) {
 		this.x += v.x;
 		this.y += v.y;
 		return this;
-	}
+	},
+
+	add: function(v) {
+		return new Vector(this.x + v.x, this.y + v.y);
+	},
+
+	subtract: function(v) {
+		return new Vector(this.x - v.x, this.y - v.y);
+	},
+
+	toString: function() {
+		return "Vector(" + this.x + "," + this.y + ")";
+	},
+
 }

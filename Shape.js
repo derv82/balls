@@ -5,8 +5,8 @@ function Shape(x,y) {
 	this.position = new Vector(x, y);
 
 	// Random velocity
-	var dx = parseInt(Math.random() * 50) - 10,
-	    dy = parseInt(Math.random() * 50) - 10;
+	var dx = parseInt(Math.random() * 20) - 10,
+	    dy = parseInt(Math.random() * 20) - 10;
 	this.velocity = new Vector(dx,dy);
 
 	// Downward acceleration
@@ -28,11 +28,7 @@ Shape.prototype = {
 	// POSITION
 	tick: function(canvas) {
 		this.color.tick();
-
-		this.velocity.x += this.acceleration.x;
-		this.velocity.y += this.acceleration.y;
-
-		this.position.x += this.velocity.x;
-		this.position.y += this.velocity.y;
+		this.velocity.translate(this.acceleration);
+		this.position.translate(this.velocity);
 	}
 }
