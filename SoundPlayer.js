@@ -1,34 +1,51 @@
-// Taken from http://www.storiesinflight.com/html5/audio.html
-function SoundPlayer() {
+/**
+ * Initialize sound player with list of sounds
+ * @param sounds
+ *        Dictionary of sounds containing "url" and "name" attributes.
+ */
+function SoundPlayer(sounds) {
 
-	var thisSP = this;
+	// Load sounds
+	this.sounds = sounds;
+	this.soundBuffers = {};
+	for (var sound in sounds) {
+		this.load(sounds[sound]);
+	}
 
+	// The highest "volume" provided so far.
+	this.HIGHEST_VOLUME = 30;
+
+	// Setup context and audio position
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	this.context = new AudioContext();
 	this.context.listener.setPosition(0, 0, 1);
-
-	/** The highest "volume" provided so far. */
-	this.HIGHEST_VOLUME = 30;
-	this.soundBuffer = null;
-
-
-	var request = new XMLHttpRequest();
-	request.open('GET', 'sounds/billiard2.wav', true);
-	request.responseType = 'arraybuffer';
-	request.onload = function() {
-		thisSP.context.decodeAudioData(
-			request.response,
-			function(buffer) {
-				thisSP.soundBuffer = buffer;
-			},
-			function(e) {
-				throw new Error(e);
-			});
-	}
-	request.send();
 }
 
 SoundPlayer.prototype = {
+	/**
+	 * Load sound.
+	 * @param sound
+	 *        Object with "url" and "name" attributes.
+	 */
+	load: function(sound) {
+		var thisSP = this;
+
+		var request = new XMLHttpRequest();
+		request.open('GET', sound.url, true);
+		request.responseType = 'arraybuffer';
+		request.onload = function() {
+			thisSP.context.decodeAudioData(
+				request.response,
+				function(buffer) {
+					thisSP.soundBuffers[sound.name] = buffer;
+				},
+				function(e) {
+					throw new Error(e);
+				});
+		}
+		request.send();
+	},
+
 	/**
 	 * Plays sound.
 	 *
@@ -39,13 +56,13 @@ SoundPlayer.prototype = {
 	 * 				Actual volume is this volume's percentage of
 	 * 				the highest volume recorded so far.
 	 */
-	play: function(audioID, volume, x) {
-		if (this.soundBuffer == null) {
-			throw new Error("SoundBuffer is null; no sound was loaded");
+	play: function(soundName, volume, x) {
+		if (!this.soundBuffers[soundName]) {
+			throw new Error("No buffer for sound '" + soundName + "'");
 		}
-		// Create buffer source arund audio buffer
+		// Create buffer source around audio buffer
 		var source = this.context.createBufferSource();
-		source.buffer = this.soundBuffer;
+		source.buffer = this.soundBuffers[soundName];
 
 		/////////////////////////////
 		// Volume
@@ -61,7 +78,9 @@ SoundPlayer.prototype = {
 		gainNode.gain.value = volume;
 
 		var panner = this.context.createPanner();
-		panner.setPosition(x, 0, 0);
+		if (x) {
+			panner.setPosition(x, 0, 0);
+		}
 
 		source.connect(gainNode);
 		gainNode.connect(panner);
