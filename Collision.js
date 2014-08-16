@@ -61,23 +61,25 @@ Collision.prototype = {
 
 		/////////////////////////////////////
 		// Calculate the Normal & Tangent vectors
-		var unitNormal = deltav.normalize();   // Direction: From shape1 to shape2
-		var unitTangent = new Vector(-unitNormal.y, unitNormal.x); // Direction: Perpendicular to the Normal
+		var vectorUnitNormal = deltav.normalize();   // Direction: From shape1 to shape2
+		var vectorUnitTangent = new Vector(-vectorUnitNormal.y, vectorUnitNormal.x); // Direction: Perpendicular to the Normal
 		// *Unit means length is 1
+		
+		var volume = deltav.subtract(shape1.velocity.normalize()).length() / 2;
 
 		///////////////////////////////////////////////////////
 		// Calculate the pre-collision velocity of shapes along
 		// both the normal and tangent unit vectors.
 		// This is done by "projecting" each velocity onto the normal/tangent vectors
-		var v1NormalBefore  = unitNormal.dot(shape1.velocity);
-		var v2NormalBefore  = unitNormal.dot(shape2.velocity);
-		var v1TangentBefore = unitTangent.dot(shape1.velocity);
-		var v2TangentBefore = unitTangent.dot(shape2.velocity);
+		var scalarNormalBefore1  = vectorUnitNormal.dot(shape1.velocity);
+		var scalarNormalBefore2  = vectorUnitNormal.dot(shape2.velocity);
+		var scalarTangentBefore1 = vectorUnitTangent.dot(shape1.velocity);
+		var scalarTangentBefore2 = vectorUnitTangent.dot(shape2.velocity);
 
 		// Calculate post-collision velocity along the tangent vector
 		// Note: This does not change as it's tangential to the collision
-		var v1TangentAfter = v1TangentBefore;
-		var v2TangentAfter = v2TangentBefore;
+		var scalarTangentAfter1 = scalarTangentBefore1;
+		var scalarTangentAfter2 = scalarTangentBefore2;
 
 		// Calculate the magnitude of the post-collision velocity along the normal vector
 		///////////////////////////////////////////////////////////////////////////////
@@ -88,29 +90,36 @@ Collision.prototype = {
 		//                                                                           //
 		///////////////////////////////////////////////////////////////////////////////
 		// This gives the magnitude of the post-collision velocity along the normal vector
-		var v1NormalAfter = (
-		                      v1NormalBefore * (shape1.mass - shape2.mass)
-		                      +            2 * shape2.mass * v2NormalBefore
-		                    )
-		                    / massSum;
-		var v2NormalAfter = (
-		                      v2NormalBefore * (shape2.mass - shape1.mass)
-		                      +            2 * shape1.mass * v1NormalBefore
-		                    )
-		                    / massSum;
+		var scalarNormalAfter1
+		  = (
+		      scalarNormalBefore1 * (shape1.mass - shape2.mass)
+		      +                 2 * shape2.mass * scalarNormalBefore2
+		    )
+		    / massSum;
+		var scalarNormalAfter2
+		  = (
+		      scalarNormalBefore2 * (shape2.mass - shape1.mass)
+		      +                 2 * shape1.mass * scalarNormalBefore1
+		    )
+		    / massSum;
 
 		// Create the post-collision velocity vectors (extensions of the normal/tangent)
-		var v1NormalVectorAfter  = unitNormal.multiply(v1NormalAfter);
-		var v2NormalVectorAfter  = unitNormal.multiply(v2NormalAfter);
-		var v1TangentVectorAfter = unitTangent.multiply(v1TangentAfter);
-		var v2TangentVectorAfter = unitTangent.multiply(v2TangentAfter);
+		var vectorNormalAfter1  = vectorUnitNormal.multiply(scalarNormalAfter1);
+		var vectorNormalAfter2  = vectorUnitNormal.multiply(scalarNormalAfter2);
+		var vectorTangentAfter1 = vectorUnitTangent.multiply(scalarTangentAfter1);
+		var vectorTangentAfter2 = vectorUnitTangent.multiply(scalarTangentAfter2);
+
+		var velBefore = shape1.velocity;
 
 		// Add these vectors together to get the final velocities
-		shape1.velocity = v1NormalVectorAfter.add(v1TangentVectorAfter);
-		shape2.velocity = v2NormalVectorAfter.add(v2TangentVectorAfter);
+		shape1.velocity = vectorNormalAfter1.add(vectorTangentAfter1);
+		shape2.velocity = vectorNormalAfter2.add(vectorTangentAfter2);
 
+		////////////////////////////////////
 		// Play a sound.
-		this.audio.play('billiard');
+		// Calculate magnitude of change in volume
+		var volume = velBefore.subtract(shape1.velocity).length();
+		this.audio.play("billiard", volume);
 	},
 
 
