@@ -60,11 +60,13 @@ Canvas.prototype = {
 
 $(window).ready(function() {
 	var canvas = new Canvas("canvas");
-	var s = canvas.addShape(20, 150);
-	s.velocity.y = 0;
-	s.velocity.x = 5;
-	s = canvas.addShape(400, 200);
-	s.velocity.y = 0;
-	s.velocity.x = 0;
+	var NUM_BALLS = 10;
+	for (var i = 0; i < NUM_BALLS; i++) {
+		var s = canvas.addShape(i * canvas.element.width / NUM_BALLS, 0);
+		s.position.x += s.radius / 2;
+		s.position.y = canvas.element.height - s.radius;
+		s.velocity = new Vector(0,0);
+	}
+	canvas.shapes.shapes[0].velocity.x = 5;
 	canvas.loop();
 });

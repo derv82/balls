@@ -20,10 +20,9 @@ function SoundPlayer() {
 			request.response,
 			function(buffer) {
 				thisSP.soundBuffer = buffer;
-				console.log("Loaded buffer");
 			},
 			function(e) {
-				console.log("Error", e);
+				throw new Error(e);
 			});
 	}
 	request.send();
@@ -62,9 +61,7 @@ SoundPlayer.prototype = {
 		gainNode.gain.value = volume;
 
 		var panner = this.context.createPanner();
-		console.log(x)
 		panner.setPosition(x, 0, 0);
-		console.log(panner);
 
 		source.connect(gainNode);
 		gainNode.connect(panner);
