@@ -49,11 +49,16 @@ function Canvas(canvasID) {
 			}
 		},
 
+		doubleTap: function(event, target) {
+			thisCanvas.background.flash(255,0,255);
+			thisCanvas.shapes.clear();
+		},
+
 		swipe: function(event, direction, distance, duration, fingerCount, fingerData) {
 			var v;
 			// Get direction of swipe
-			if        (direction === "up")    { v = new Vector( 0,  1);
-			} else if (direction === "down")  { v = new Vector( 0, -1);
+			if        (direction === "up")    { v = new Vector( 0, -1);
+			} else if (direction === "down")  { v = new Vector( 0,  1);
 			} else if (direction === "left")  { v = new Vector(-1,  0);
 			} else if (direction === "right") { v = new Vector( 1,  0); }
 			// Extend direction based on distance swiped
