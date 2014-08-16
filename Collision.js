@@ -12,21 +12,33 @@ Collision.prototype = {
 		if (shape.position.x - shape.radius < 0) {
 			shape.position.x = shape.radius;
 			shape.velocity.x = -shape.velocity.x;
+			this.audio.play("blip",
+			                Math.abs(shape.velocity.x / 2),
+			                shape.position.x / this.canvas.width - 0.5);
 		}
 		// Top wall
 		if (shape.position.y - shape.radius < 0) {
 			shape.position.y = shape.radius;
 			shape.velocity.y = -shape.velocity.y;
+			this.audio.play("blip",
+			                Math.abs(shape.velocity.y / 2),
+			                shape.position.x / this.canvas.width - 0.5);
 		}
 		// Right wall
 		if (shape.position.x + shape.radius > this.canvas.width) {
 			shape.position.x = this.canvas.width - shape.radius;
 			shape.velocity.x = -shape.velocity.x;
+			this.audio.play("blip",
+			                Math.abs(shape.velocity.x / 2),
+			                shape.position.x / this.canvas.width - 0.5);
 		}
 		// Bottom wall
 		if (shape.position.y + shape.radius > this.canvas.height) {
 			shape.position.y = this.canvas.height - shape.radius;
 			shape.velocity.y = -shape.velocity.y;
+			this.audio.play("blip",
+			                Math.abs(shape.velocity.y / 2),
+			                shape.position.x / this.canvas.width - 0.5);
 		}
 	},
 
