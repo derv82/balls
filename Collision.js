@@ -1,13 +1,13 @@
 // Functions for detecting and resolving collisions
 
-function Collision(audio, context) {
+function Collision(audio, canva) {
 	this.audio   = audio;
-	this.context = context;
+	this.canvas  = canvas;
 }
 
 Collision.prototype = {
 	// Checks for and resolves collisions between a shape and a wall
-	wall: function(shape, canvas) {
+	wall: function(shape) {
 		// Left wall
 		if (shape.position.x - shape.radius < 0) {
 			shape.position.x = shape.radius;
@@ -19,13 +19,13 @@ Collision.prototype = {
 			shape.velocity.y = -shape.velocity.y;
 		}
 		// Right wall
-		if (shape.position.x + shape.radius > canvas.width) {
-			shape.position.x = canvas.width - shape.radius;
+		if (shape.position.x + shape.radius > this.canvas.width) {
+			shape.position.x = this.canvas.width - shape.radius;
 			shape.velocity.x = -shape.velocity.x;
 		}
 		// Bottom wall
-		if (shape.position.y + shape.radius > canvas.height) {
-			shape.position.y = canvas.height - shape.radius;
+		if (shape.position.y + shape.radius > this.canvas.height) {
+			shape.position.y = this.canvas.height - shape.radius;
 			shape.velocity.y = -shape.velocity.y;
 		}
 	},
@@ -119,7 +119,7 @@ Collision.prototype = {
 		// Play a sound.
 		// Calculate magnitude of change in volume
 		var volume = velBefore.subtract(shape1.velocity).length();
-		this.audio.play("billiard", volume);
+		this.audio.play("billiard", volume, shape1.position.x / this.canvas.width - 0.5);
 	},
 
 

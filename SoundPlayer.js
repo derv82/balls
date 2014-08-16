@@ -1,29 +1,76 @@
 // Taken from http://www.storiesinflight.com/html5/audio.html
 function SoundPlayer() {
-	this.AUDIO_MAX_CHANNELS = 10;
-	this.audioChannels = new Array();
 
-	for (var i = 0; i < this.AUDIO_MAX_CHANNELS; i++) {
-		this.audioChannels[i] = new Array();
-		this.audioChannels[i]['channel'] = new Audio();
-		this.audioChannels[i]['finished'] = -1;
+	var thisSP = this;
+
+	window.AudioContext = window.AudioContext || window.webkitAudioContext;
+	this.context = new AudioContext();
+	this.context.listener.setPosition(0, 0, 1);
+
+	/** The highest "volume" provided so far. */
+	this.HIGHEST_VOLUME = 30;
+	this.soundBuffer = null;
+
+
+	var request = new XMLHttpRequest();
+	request.open('GET', 'sounds/billiard2.wav', true);
+	request.responseType = 'arraybuffer';
+	request.onload = function() {
+		thisSP.context.decodeAudioData(
+			request.response,
+			function(buffer) {
+				thisSP.soundBuffer = buffer;
+				console.log("Loaded buffer");
+			},
+			function(e) {
+				console.log("Error", e);
+			});
 	}
+	request.send();
 }
 
 SoundPlayer.prototype = {
-	/** audioID is the id of the <audio> element to play */
-	play: function(audioID) {
-		var now;
-
-		for (var i = 0; i < this.audioChannels.length; i++) {
-			now = new Date().getTime();
-			if (this.audioChannels[i]['finished'] < now) {
-				this.audioChannels[i]['finished'] = now + document.getElementById(audioID).duration * 1000;
-				this.audioChannels[i]['channel'].src = document.getElementById(audioID).src;
-				this.audioChannels[i]['channel'].load();
-				this.audioChannels[i]['channel'].play();
-				break;
-			}
+	/**
+	 * Plays sound.
+	 *
+	 * @param audioID
+	 * 				The id of the <audio> element to play
+	 *
+	 * @param volume (optional)
+	 * 				Actual volume is this volume's percentage of
+	 * 				the highest volume recorded so far.
+	 */
+	play: function(audioID, volume, x) {
+		if (this.soundBuffer == null) {
+			throw new Error("SoundBuffer is null; no sound was loaded");
 		}
+		// Create buffer source arund audio buffer
+		var source = this.context.createBufferSource();
+		source.buffer = this.soundBuffer;
+
+		/////////////////////////////
+		// Volume
+		volume = volume || new Audio().volume;
+		this.HIGHEST_VOLUME = Math.max(this.HIGHEST_VOLUME, volume);
+
+		// Set volume to a relative percentage based on historical data.
+		volume = Math.min(1.0, volume / this.HIGHEST_VOLUME);
+
+		// Adjust volume
+		var gainNode = this.context.createGain ? this.context.createGain()
+		                                       : this.context.createGainNode();
+		gainNode.gain.value = volume;
+
+		var panner = this.context.createPanner();
+		console.log(x)
+		panner.setPosition(x, 0, 0);
+		console.log(panner);
+
+		source.connect(gainNode);
+		gainNode.connect(panner);
+		panner.connect(this.context.destination);
+
+		// Start sound
+		source.start(0);
 	}
 }

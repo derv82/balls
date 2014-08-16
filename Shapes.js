@@ -1,8 +1,8 @@
 // Functions on a set of shapes
 
-function Shapes(audio, context) {
+function Shapes(audio, canvas) {
 	this.shapes = new Array();
-	this.collision = new Collision(audio,context);
+	this.collision = new Collision(audio,canvas);
 }
 
 Shapes.prototype = {
@@ -19,7 +19,7 @@ Shapes.prototype = {
 	tick: function(canvas) {
 		for (var i = 0; i < this.shapes.length; i++) {
 			this.shapes[i].tick(canvas);
-			this.collision.wall(this.shapes[i], canvas);
+			this.collision.wall(this.shapes[i]);
 
 			for (var j = i + 1; j < this.shapes.length; j++) {
 				this.collision.shape(this.shapes[i], this.shapes[j]);

@@ -5,7 +5,7 @@ function Canvas(canvasID) {
 	this.audio = new SoundPlayer();
 
 	this.background = new Background();
-	this.shapes = new Shapes(this.audio, this.context);
+	this.shapes = new Shapes(this.audio, this.element);
 	
 	var thisCanvas = this; // For reference within inner functions below
 
