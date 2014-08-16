@@ -2,7 +2,16 @@
 function Canvas(canvasID) {
 	this.element = $('#' + canvasID)[0];
 	this.context = this.element.getContext("2d");
-	this.audio = new SoundPlayer();
+	this.audio = new SoundPlayer([
+			{
+				url: './sounds/billiard2.wav',
+				name: 'billiard'
+			},
+			{
+				url: './sounds/blip2.wav',
+				name: 'blip'
+			},
+		]);
 
 	this.background = new Background();
 	this.shapes = new Shapes(this.audio, this.element);
@@ -27,11 +36,35 @@ function Canvas(canvasID) {
 		}
 	});
 
-	// CLICK
-	$(window).click(function(event) {
-		thisCanvas.background.flash(255,0,255);
-		thisCanvas.addShape(event.pageX, event.pageY);
-		event.preventDefault();
+	// MOUSE / TOUCH
+	$("#canvas").swipe({
+		tap: function(event, target) {
+			thisCanvas.background.flash(255,0,255);
+			thisCanvas.addShape(event.pageX, event.pageY);
+
+			// Play sound during human interaction (for iOS)
+			if (!$(window).data("hasPlayedSound")) {
+				$(window).data("hasPlayedSound", true);
+				thisCanvas.audio.play("blip", 1.0, 0);
+			}
+		},
+
+		swipe: function(event, direction, distance, duration, fingerCount, fingerData) {
+			var v;
+			// Get direction of swipe
+			if        (direction === "up")    { v = new Vector( 0,  1);
+			} else if (direction === "down")  { v = new Vector( 0, -1);
+			} else if (direction === "left")  { v = new Vector(-1,  0);
+			} else if (direction === "right") { v = new Vector( 1,  0); }
+			// Extend direction based on distance swiped
+			v = v.multiply(Math.max(20, thisCanvas.element.width / distance));
+			// Push all balls in this direction
+			for (var i in thisCanvas.shapes.shapes) {
+				thisCanvas.shapes.shapes[i].velocity = thisCanvas.shapes.shapes[i].velocity.add(v);
+			}
+		},
+		// Distance threshold to differentiate taps and swipes
+		threshold: 10,
 	});
 }
 
@@ -43,11 +76,11 @@ Canvas.prototype = {
 	},
 
 	tick: function() {
-		this.background.draw(this.element, this.context);
 		this.background.tick();
+		this.background.draw(this.element, this.context);
 
-		this.shapes.draw(this.context);
 		this.shapes.tick(this.element);
+		this.shapes.draw(this.context);
 	},
 
 	loop: function() {
@@ -60,6 +93,7 @@ Canvas.prototype = {
 
 $(window).ready(function() {
 	var canvas = new Canvas("canvas");
+	/*
 	var NUM_BALLS = 10;
 	for (var i = 0; i < NUM_BALLS; i++) {
 		var s = canvas.addShape(i * canvas.element.width / NUM_BALLS, 0);
@@ -68,5 +102,6 @@ $(window).ready(function() {
 		s.velocity = new Vector(0,0);
 	}
 	canvas.shapes.shapes[0].velocity.x = 5;
+	*/
 	canvas.loop();
 });
