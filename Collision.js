@@ -36,9 +36,11 @@ Collision.prototype = {
 		if (shape.position.y + shape.radius > this.canvas.height) {
 			shape.position.y = this.canvas.height - shape.radius;
 			shape.velocity.y = -shape.velocity.y;
-			this.audio.play("blip",
-			                Math.abs(shape.velocity.y / 2),
-			                shape.position.x / this.canvas.width - 0.5);
+			if (shape.velocity.y > 1) {
+				this.audio.play("blip",
+				                Math.abs(shape.velocity.y / 2),
+				                Shape.position.x / this.canvas.width - 0.5);
+			}
 		}
 	},
 

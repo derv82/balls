@@ -2,6 +2,8 @@ body {
 	background-color: #627;
 	font-family: Consolas,  Verdana, monospace;
 	color: #ccc;
+	margin: 0px;
+	padding: 0px;
 }
 
 canvas {

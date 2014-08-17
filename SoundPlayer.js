@@ -77,16 +77,18 @@ SoundPlayer.prototype = {
 		                                       : this.context.createGainNode();
 		gainNode.gain.value = volume;
 
+		// Adjust position if given
 		var panner = this.context.createPanner();
 		if (x) {
 			panner.setPosition(x, 0, 0);
 		}
 
+		// Conect the audio nodes together
 		source.connect(gainNode);
 		gainNode.connect(panner);
 		panner.connect(this.context.destination);
 
-		// Start sound
+		// Play sound from beginning
 		source.start(0);
 	}
 }

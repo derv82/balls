@@ -98,7 +98,6 @@ Canvas.prototype = {
 
 $(window).ready(function() {
 	var canvas = new Canvas("canvas");
-	/*
 	var NUM_BALLS = 10;
 	for (var i = 0; i < NUM_BALLS; i++) {
 		var s = canvas.addShape(i * canvas.element.width / NUM_BALLS, 0);
@@ -107,6 +106,5 @@ $(window).ready(function() {
 		s.velocity = new Vector(0,0);
 	}
 	canvas.shapes.shapes[0].velocity.x = 5;
-	*/
 	canvas.loop();
 });
