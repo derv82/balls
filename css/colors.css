@@ -1,0 +1,30 @@
+.colorChooser {
+	min-width: 100px;
+	min-height: 25px;
+	opacity: 0.5;
+}
+
+.colorChooser.selected {
+	opacity: 1.0;
+}
+
+#colorRed    { background-color: #f00; }
+#colorOrange { background-color: #ffa500; }
+#colorYellow { background-color: #ff0; }
+#colorGreen  { background-color: #0f0; }
+#colorBlue   { background-color: #00f; }
+#colorPurple { background-color: #800080; }
+
+#canvas {
+	background-color: #fff;
+}
+
+td {
+	vertical-align: top;
+}
+
+body, table, tbody, tr, td {
+	overflow: hidden;
+	padding: 0;
+	margin:  0;
+}
