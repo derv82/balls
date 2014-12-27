@@ -98,6 +98,17 @@ Canvas.prototype = {
 
 $(window).ready(function() {
 	var canvas = new Canvas("canvas");
+
+	var s;
+	s = canvas.addShape(50, 150);
+	s.velocity     = new Vector(23,0);
+	s.acceleration = new Vector(0,0);
+
+	s = canvas.addShape(650, 175);
+	s.velocity     = new Vector(0,0);
+	s.acceleration = new Vector(0,0);
+
+	/*
 	var NUM_BALLS = 10;
 	for (var i = 0; i < NUM_BALLS; i++) {
 		var s = canvas.addShape(i * canvas.element.width / NUM_BALLS, 0);
@@ -106,5 +117,6 @@ $(window).ready(function() {
 		s.velocity = new Vector(0,0);
 	}
 	canvas.shapes.shapes[0].velocity.x = 5;
+	*/
 	canvas.loop();
 });

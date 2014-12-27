@@ -43,4 +43,7 @@ Vector.prototype = {
 		return "Vector(" + this.x + "," + this.y + ")";
 	},
 
+	clone: function() {
+		return new Vector(this.x, this.y);
+	}
 }

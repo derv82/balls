@@ -2,12 +2,19 @@
 
 function Shapes(audio, canvas) {
 	this.shapes = new Array();
-	this.collision = new Collision(audio,canvas);
+	this.audio = audio;
+	this.canvas = canvas;
 }
 
 Shapes.prototype = {
 	addShape: function(x, y) {
-		var shape = new Shape(x,y);
+		var shape;
+		if (Math.random() < 0.0) {
+			shape = new Circle(x, y, this.audio, this.canvas);
+		}
+		else {
+			shape = new Square(x, y, this.audio, this.canvas);
+		}
 		this.shapes.push(shape);
 		return shape;
 	},
@@ -19,10 +26,10 @@ Shapes.prototype = {
 	tick: function(canvas) {
 		for (var i = 0; i < this.shapes.length; i++) {
 			this.shapes[i].tick(canvas);
-			this.collision.wall(this.shapes[i]);
+			this.shapes[i].collideWall(this.canvas, this.audio);
 
 			for (var j = i + 1; j < this.shapes.length; j++) {
-				this.collision.shape(this.shapes[i], this.shapes[j]);
+				this.shapes[i].collideShape(this.shapes[j]);
 			}
 		}
 	},
