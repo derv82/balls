@@ -9,12 +9,7 @@ function Shapes(audio, canvas) {
 Shapes.prototype = {
 	addShape: function(x, y) {
 		var shape;
-		if (Math.random() < 0.0) {
-			shape = new Circle(x, y, this.audio, this.canvas);
-		}
-		else {
-			shape = new Square(x, y, this.audio, this.canvas);
-		}
+		shape = new Circle(x, y, this.audio, this.canvas);
 		this.shapes.push(shape);
 		return shape;
 	},
