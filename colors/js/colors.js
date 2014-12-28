@@ -16,6 +16,7 @@ function resize() {
 	context.canvas.width  = $(window).width() - 110;
 	context.canvas.height = $(window).height();
 	$('.colorChooser').height( $(window).height() / $('.colorChooser').size());
+	$('.colorChooser.selected').click();
 }
 
 var asdf = null;
