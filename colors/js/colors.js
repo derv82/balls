@@ -6,10 +6,6 @@ function init() {
 	context.fillStyle = 'rgb(255,0,0)';
 	context.strokeStyle = 'rgb(255,0,0)';
 	context.lineWidth = 10;
-	$(document).on('swipeleft swiperight', '.selector', function(event) {
-		event.stopPropagation();
-		event.preventDefault();
-	});
 }
 
 function resize() {
