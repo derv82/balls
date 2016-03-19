@@ -75,15 +75,16 @@
 
             if (isPrime(this.angleSegment)) {
                 context.beginPath();
-                context.strokeStyle = "#f00";
-                context.fillStyle = "#0f0";
+                context.strokeStyle = "#444";
+                context.fillStyle = "#0ff";
                 context.arc(this.lastX, this.lastY, 20, 0, 2 * Math.PI, false);
                 context.fill();
                 context.stroke();
 
                 context.font = "20px serif";
                 var width = context.measureText(this.angleSegment).width;
-                context.strokeText(this.angleSegment, this.lastX - (width / 2), this.lastY + 7);
+                context.fillStyle = "#444";
+                context.fillText(this.angleSegment, this.lastX - (width / 2), this.lastY + 7);
             } else {
                 context.beginPath();
                 context.strokeStyle = "#0ff";
