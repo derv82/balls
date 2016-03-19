@@ -101,18 +101,27 @@
         return this;
     }
 
+    var PRIMES = {};
     function isPrime(n) {
-        if (n == 2) {
-            return true;
-        } else if (n % 2 == 0) {
-            return false;
+        var nStr = n.toString()
+        if (PRIMES.hasOwnProperty(nStr)) {
+            return PRIMES[nStr];
         }
-        var sqrtN = Math.ceil(Math.sqrt(n));
-        for (var i = 3; i <= sqrtN; i += 2) {
-            if (n % i == 0) {
-                return false;
+        var result = true;
+        if (n == 2) {
+            result = true;
+        } else if (n % 2 == 0) {
+            result = false;
+        } else {
+            var sqrtN = Math.ceil(Math.sqrt(n));
+            for (var i = 3; i <= sqrtN; i += 2) {
+                if (n % i == 0) {
+                    result = false;
+                    break;
+                }
             }
         }
-        return true;
+        PRIMES[nStr] = result
+        return result;
     }
 })();
