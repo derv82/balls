@@ -17,6 +17,7 @@
         context.fillRect(0, 0, canvas.width, canvas.height);
         spirals.push(new Spiral(canvas.width / 2, canvas.height / 2, self.a, self.b, self.currentAngleIncrement));
     };
+    $(window).resize(redraw);
 
     var plusButton = document.getElementById("plus");
     plusButton.onclick = function() {
