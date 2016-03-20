@@ -1,112 +1,23 @@
 (function() {
     var self = this;
-    var spirals = [];
 
     var canvas = document.getElementById("canvas");
-    var context = canvas.getContext("2d");
-
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    var context = canvas.getContext("2d");
+
     self.a = 5;
     self.b = 5;
-    self.currentAngleIncrement = 0.7;
-    function redraw() {
-        spirals.splice(0, spirals.length);
-        context.fillStyle = "rgba(0,0,0,1.0)";
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        spirals.push(new Spiral(canvas.width / 2, canvas.height / 2, self.a, self.b, self.currentAngleIncrement));
-    };
-    $(window).resize(redraw);
+    self.angleIncrement = 0.7;
 
-    var plusButton = document.getElementById("plus");
-    plusButton.onclick = function() {
-        self.currentAngleIncrement += 0.01;
-        redraw();
-    };
+    self.scale = 1.0;
 
-    var minusButton = document.getElementById("minus");
-    minusButton.onclick = function() {
-        self.currentAngleIncrement -= 0.01;
-        redraw();
-    };
-    redraw();
-
-    function updateSpirals() {
-        /*
-        context.fillStyle = "rgba(0,0,0,0.01)";
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        */
-        for (var i = 0; i < spirals.length; i++) {
-            spirals[i].tick();
-            spirals[i].draw();
-            if (spirals[i].done()) {
-                console.log("done");
-                spirals.splice(i, 1);
-                i--;
-            }
-        }
-    }
-
-    setInterval(updateSpirals, 1);
-
-    function Spiral(x, y, a, b, angleIncrement) {
-        this.centerX = x, this.centerY = y;
-        this.lastX = x; this.lastY = y;
-        this.a = a || 1, this.b = b || 1;
-        this.angleIncrement = angleIncrement || 0.5;
-        this.angleSegment = 0;
-        this.done = function() {
-            return (this.angleSegment >= 360);
-        };
-        this.tick = function() {
-            this.angleSegment++;
-        };
-        this.draw = function() {
-            context.beginPath();
-            context.strokeStyle = "#fff";
-            context.moveTo(this.lastX, this.lastY);
-
-            angle = this.angleIncrement * this.angleSegment;
-            this.lastX = this.centerX + (this.a + this.b * angle) * Math.cos(angle);
-            this.lastY = this.centerY + (this.a + this.b * angle) * Math.sin(angle);
-
-            context.lineTo(this.lastX, this.lastY);
-            context.stroke();
-
-            if (isPrime(this.angleSegment)) {
-                context.beginPath();
-                context.strokeStyle = "#444";
-                context.fillStyle = "#0ff";
-                context.arc(this.lastX, this.lastY, 20, 0, 2 * Math.PI, false);
-                context.fill();
-                context.stroke();
-
-                context.font = "20px serif";
-                var width = context.measureText(this.angleSegment).width;
-                context.fillStyle = "#444";
-                context.fillText(this.angleSegment, this.lastX - (width / 2), this.lastY + 7);
-            } else {
-                context.beginPath();
-                context.strokeStyle = "#0ff";
-                context.fillStyle = "#444";
-                context.arc(this.lastX, this.lastY, 10, 0, 2 * Math.PI, false);
-                context.fill();
-                context.stroke();
-
-                context.font = "10px serif";
-                var width = context.measureText(this.angleSegment).width;
-                context.strokeText(this.angleSegment, this.lastX - (width / 2), this.lastY + 2);
-            }
-        };
-        return this;
-    }
-
-    var PRIMES = {};
-    function isPrime(n) {
+    self.PRIMES = {};
+    self.isPrime = function(n) {
         var nStr = n.toString()
-        if (PRIMES.hasOwnProperty(nStr)) {
-            return PRIMES[nStr];
+        if (self.PRIMES.hasOwnProperty(nStr)) {
+            return self.PRIMES[nStr];
         }
         var result = true;
         if (n == 2) {
@@ -122,7 +33,134 @@
                 }
             }
         }
-        PRIMES[nStr] = result
+        self.PRIMES[nStr] = result
         return result;
+    };
+
+    self.newSpiral = function() {
+        this.centerX = window.innerWidth / 2;
+        this.centerY = window.innerHeight / 2;
+        this.draw = function() {
+            context.fillStyle = "rgba(0,0,0,1.0)";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.beginPath();
+            context.moveTo(this.centerX, this.centerY);
+
+            var angle;
+            for (var i = 2; i < 360; i++) {
+                angle = i * self.angleIncrement;
+
+                var newX = this.centerX + (self.scale * (self.a + self.b * angle) * Math.cos(angle));
+                var newY = this.centerY + (self.scale * (self.a + self.b * angle) * Math.sin(angle));
+
+                // Draw spiral line to next point.
+                context.lineTo(newX, newY);
+                context.strokeStyle = "rgba(0,255,255,0.3)";
+                context.stroke();
+
+                var strokeStyle, fillstyle, arcRadius, font, offsetY;
+                if (self.isPrime(i)) {
+                    strokeStyle = "#444";
+                    fillStyle = "#0aa";
+                    arcRadius = 20 * self.scale;
+                    fontSize = arcRadius + "px";
+                } else {
+                    strokeStyle = "#0aa";
+                    fillStyle = "#444";
+                    arcRadius = 12 * self.scale;
+                    fontSize = arcRadius + "px";
+                }
+                offsetY = (arcRadius / 2);
+
+                // Draw the circle at this point
+                context.beginPath();
+                context.strokeStyle = strokeStyle;
+                context.fillStyle = fillStyle;
+                context.arc(newX, newY, arcRadius, 0, 2 * Math.PI, false);
+                context.fill();
+                context.stroke();
+
+                // Insert number into circle
+                context.fillStyle = "#fff";
+                context.font = fontSize + " Consolas";
+                var width = context.measureText(i).width;
+                context.fillText(i, newX - (width / 2), newY + offsetY - 5);
+            }
+        };
+        return this;
+    };
+
+    self.spiral = self.newSpiral();
+
+    self.redraw = function() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        self.spiral.centerX = canvas.width / 2;
+        self.spiral.centerY = canvas.height / 2;
+
+        self.spiral.draw();
+    };
+
+    $(window).resize(self.redraw);
+
+    self.redraw();
+
+    self.speed = 0.00001;
+    self.timer = setInterval(function() {
+        self.angleIncrement += self.speed;
+        redraw();
+    }, 10);
+    self.increment = 0.001;
+
+    function speedUp() {
+        self.speed += 0.0001;
+        redraw();
     }
+    document.getElementById("greaterThan").onclick = speedUp;
+
+    function slowDown() {
+        self.speed -= 0.0001;
+        redraw();
+    }
+    document.getElementById("lessThan").onclick = slowDown;
+
+    function halt() {
+        self.speed = 0;
+    }
+    document.getElementById("stop").onclick = halt;
+
+    function zoomIn() {
+        self.scale /= 0.8;
+    }
+    document.getElementById("zoomIn").onclick = zoomIn;
+
+    function zoomOut() {
+        self.scale *= 0.8;
+    }
+    document.getElementById("zoomOut").onclick = zoomOut;
+
+    $(document).keydown(function(e) {
+        switch(e.which) {
+            case 37: // left
+                slowDown();
+                break;
+            case 39: // right
+                speedUp();
+                break;
+
+            case 38: // up
+                zoomIn();
+                break;
+            case 40: // down
+                zoomOut();
+                break;
+
+            case 32: // space
+            case 13: // Enter
+                halt();
+                break;
+            default: return; // exit this handler for other keys
+        }
+        e.preventDefault(); // prevent the default action (scroll / move caret)
+    });
 })();
