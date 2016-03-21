@@ -9,7 +9,7 @@
 
     self.a = 5;
     self.b = 5;
-    self.angleIncrement = 0.7;
+    self.angleIncrement = 0.5;
 
     self.scale = 1.0;
 
@@ -37,6 +37,17 @@
         return result;
     };
 
+    var FACTORS = {};
+    self.numFactors = function(n) {
+        var count = 1;
+        for (var i = 2; i * i <= n; i++) {
+            if (n % i == 0) {
+                count++;
+            }
+        }
+        return count;
+    };
+
     self.newSpiral = function() {
         this.centerX = window.innerWidth / 2;
         this.centerY = window.innerHeight / 2;
@@ -44,10 +55,16 @@
             context.fillStyle = "rgba(0,0,0,1.0)";
             context.fillRect(0, 0, canvas.width, canvas.height);
             context.beginPath();
+            context.fillStyle = "#fff";
+            var text = "Scale: " + self.scale + "x\n";
+            text += "a: " + self.a  + "\n";
+            text += "b: " + self.b  + "\n";
+            text += "i: " + self.angleIncrement + "\n";
+            context.fillText(text, 100, 100);
             context.moveTo(this.centerX, this.centerY);
 
             var angle;
-            for (var i = 2; i < 360; i++) {
+            for (var i = 2; i < 720; i++) {
                 angle = i * self.angleIncrement;
 
                 var newX = this.centerX + (self.scale * (self.a + self.b * angle) * Math.cos(angle));
@@ -59,18 +76,20 @@
                 context.stroke();
 
                 var strokeStyle, fillstyle, arcRadius, font, offsetY;
-                if (self.isPrime(i)) {
+                var nfact = self.numFactors(i);
+                if (nfact == 1) {
                     strokeStyle = "#444";
                     fillStyle = "#0aa";
                     arcRadius = 20 * self.scale;
                     fontSize = arcRadius + "px";
+                    offsetY = (arcRadius / 2);
                 } else {
                     strokeStyle = "#0aa";
                     fillStyle = "#444";
-                    arcRadius = 12 * self.scale;
+                    arcRadius = (nfact * 2) * self.scale;
                     fontSize = arcRadius + "px";
+                    offsetY = 7 * self.scale;
                 }
-                offsetY = (arcRadius / 2);
 
                 // Draw the circle at this point
                 context.beginPath();
@@ -84,7 +103,7 @@
                 context.fillStyle = "#fff";
                 context.font = fontSize + " Consolas";
                 var width = context.measureText(i).width;
-                context.fillText(i, newX - (width / 2), newY + offsetY - 5);
+                context.fillText(i, newX - (width / 2), newY + offsetY - (5 * self.scale));
             }
         };
         return this;
