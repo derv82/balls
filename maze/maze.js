@@ -33,7 +33,7 @@ var Color = {
 
 function Maze(width, height) {
   var cells = new Array(width);
-  var path = [[0,1]];
+  var path = [[1,1]];
   var positionX;
   var positionY;
   var won;
@@ -49,7 +49,9 @@ function Maze(width, height) {
     var cellHeight = parseInt(Canvas.height() / height);
     var cellX = parseInt(x / cellWidth);
     var cellY = parseInt(y / cellHeight);
+
     if (path.find(function(arr) { return (cellX === arr[0] && cellY === arr[1]); })) {
+      // If move is on existing path, roll path back.
       while (true) {
         var pathPair = path.pop();
         if (pathPair[0] === cellX && pathPair[1] === cellY) {
@@ -60,14 +62,12 @@ function Maze(width, height) {
       var diffX = positionX > cellX ? positionX - cellX : cellX - positionX;
       var diffY = positionY > cellY ? positionY - cellY : cellY - positionY;
       if (diffX >= 1 && diffY >= 1) {
-        return;
-        //throw new Error('Invalid move (' + cellX + ',' + cellY + ') too far from current position (' + positionX + ',' + positionY + ')');
+        return; // Too far from current position
       } else if (diffX > 1 || diffY > 1) {
-        return;
+        return; // Too far from current position
         //throw new Error('Invalid move (' + cellX + ',' + cellY + ') too far from current position (' + positionX + ',' + positionY + ')');
       } else if (cells[cellX][cellY] !== 1) {
-        return;
-        //throw new Error('Invalid move (' + cellX + ',' + cellY + ') not a road');
+        return; // Not a road
       }
     }
     positionX = cellX;
@@ -75,7 +75,7 @@ function Maze(width, height) {
     path.push([cellX, cellY]);
     draw();
 
-    if (positionX === width - 2 && positionY === height - 1) {
+    if (positionX === width - 2 && positionY === height - 2) {
       win();
     }
   }
@@ -88,6 +88,7 @@ function Maze(width, height) {
     }, 2000);
 
     // Rainbow, from https://stackoverflow.com/a/37713923
+    // TODO: iOS doesn't do hsl() very well...
     var canvasWidth = Canvas.width();
     var canvasHeight = Canvas.height();
     var bars = 20, i = 0, radius = Math.min(canvasWidth, canvasHeight);
@@ -113,7 +114,7 @@ function Maze(width, height) {
     }
 
     won = false;
-    positionX = 0;
+    positionX = 1;
     positionY = 1;
     while (path.length > 1) path.pop();
     while (cells.length > 0) cells.pop();
@@ -141,7 +142,7 @@ function Maze(width, height) {
       x = cellX * cellWidth;
       for (cellY = 0; cellY < cells[cellX].length; cellY++) {
         y = cellY * cellHeight;
-        if (cellX === width - 2 && cellY === height - 1) {
+        if (cellX === width - 2 && cellY === height - 2) {
           Canvas.context.fillStyle = Color.goal;
         } else if (cells[cellX][cellY] === 0) {
           Canvas.context.fillStyle = Color.wall;
@@ -172,9 +173,9 @@ function Maze(width, height) {
 
   function _buildMaze() {
     var moves = [];
-    var x = 0, y = 1, directions, direction, movePair;
+    var x = 1, y = 1, directions, direction, movePair;
     cells[x][y] = 1;
-    while (x !== width || y !== height) {
+    while (true) {
       directions = [];
       if (x > 2 && cells[x-1][y] === 0 && cells[x-2][y] === 0) directions.push('W');
       if (y > 2 && cells[x][y-1] === 0 && cells[x][y-2] === 0) directions.push('N');
@@ -213,7 +214,7 @@ function Maze(width, height) {
   }
 }
 
-var maze = Maze(8, 6);
+var maze = Maze(9, 7);
 
 window.addEventListener('resize', maze.resize);
 
