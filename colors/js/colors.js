@@ -90,5 +90,5 @@ Point.prototype = {
 $(document).ready(function() {
 	main();
 	resize();
-	$('#colorRed').click();
+	$('#color1').click();
 });

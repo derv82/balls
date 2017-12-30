@@ -26,8 +26,8 @@ var Color = {
   background: '#000',
   wall: '#333',
   road: '#ccc',
-  path: '#383',
-  cursor: '#3a3',
+  path: '#4af',
+  cursor: '#7cf',
   goal: 'gold'
 };
 
@@ -86,19 +86,29 @@ function Maze(width, height) {
     setTimeout(function() {
       reset(width + 2, height + 2);
     }, 2000);
+    rainbow();
+  }
 
-    // Rainbow, from https://stackoverflow.com/a/37713923
-    // TODO: iOS doesn't do hsl() very well...
-    var canvasWidth = Canvas.width();
-    var canvasHeight = Canvas.height();
-    var bars = 20, i = 0, radius = Math.min(canvasWidth, canvasHeight);
-    Canvas.context.lineWidth = radius / 50;
-    for (i = 0; i < bars; i++, radius -= Canvas.context.lineWidth - 1) { // increase bar, reduce radius
+  // From https://stackoverflow.com/a/37703101
+  function rainbow() {
+    var colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
+    var arcWidth = 40, radius = 8 * arcWidth;
+    var drawArc = function (color) {
       Canvas.context.beginPath();
-      Canvas.context.arc(canvasWidth * 0.5, canvasHeight, radius, 0, Math.PI, true); // half circle
-      Canvas.context.strokeStyle = "hsl(" + (i / bars * 300) + ",90%,50%,50%)";  // set color using HSL
+      Canvas.context.arc(
+        Canvas.width() / 2,
+        Canvas.height() + arcWidth / 2,
+        radius,
+        Math.PI,
+        2 * Math.PI
+      );
+      Canvas.context.lineWidth = arcWidth;
+      Canvas.context.strokeStyle = color;
       Canvas.context.stroke();
-    }
+      Canvas.context.closePath();
+      radius += arcWidth;
+    };
+    colors.reverse().forEach( drawArc );
   }
 
   function resize() {
